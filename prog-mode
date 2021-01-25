@@ -1,6 +1,15 @@
 #!/bin/bash
 DOCKER_VM=vm
+CONTAINER_NAME=progmode
+
 eval docker-machine create -d virtualbox $DOCKER_VM
 eval docker-machine start $DOCKER_VM
 eval `docker-machine env $DOCKER_VM`
-eval docker run --cap-add=SYS_PTRACE --security-opt seccomp=unconfined --rm -v `pwd`:/workspace -it 0x0584/prog-mode
+
+if docker ps -q -f name=$CONTAINER_NAME| grep '[0-9]' ; then
+	eval docker exec -it $CONTAINER_NAME /bin/bash
+else
+	eval docker run --rm -it --name $CONTAINER_NAME \
+		 --cap-add=SYS_PTRACE --security-opt seccomp=unconfined \
+		 -v `pwd`:/workspace 0x0584/prog-mode:latest
+fi
